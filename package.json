@@ -1,0 +1,31 @@
+{
+  "name": "rx-dynamodb",
+  "version": "1.0.0",
+  "description": "RxJS Observables wrapper around aws-sdk DynamoDB document client.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guzmonne/rx-dynamodb.git"
+  },
+  "keywords": [
+    "RxJS",
+    "DynamoDB",
+    "AWS"
+  ],
+  "author": "Guzman Monne <gmonne@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/guzmonne/rx-dynamodb/issues"
+  },
+  "homepage": "https://github.com/guzmonne/rx-dynamodb#readme",
+  "devDependencies": {
+    "aws-sdk": "^2.5.4",
+    "mocha": "^3.0.2"
+  },
+  "dependencies": {
+    "rx": "^4.1.0"
+  }
+}
