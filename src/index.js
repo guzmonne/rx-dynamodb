@@ -79,7 +79,7 @@ function DynamoDBObservablesConstructor() {
 		updateItem: observableFromDynamodbDocumentClient('update'),
 		putItem   : observableFromDynamodbDocumentClient('put'),
 		queryItem : observableFromDynamodbDocumentClient('query'),
-		scam      : observableFromDynamodbDocumentClient('scan'),
+		scan      : observableFromDynamodbDocumentClient('scan'),
 	})
 }
 
