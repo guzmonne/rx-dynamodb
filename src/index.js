@@ -80,6 +80,7 @@ function DynamoDBObservablesConstructor() {
 		putItem   : observableFromDynamodbDocumentClient('put'),
 		queryItem : observableFromDynamodbDocumentClient('query'),
 		scan      : observableFromDynamodbDocumentClient('scan'),
+		deleteItem: observableFromDynamodbDocumentClient('delete'),
 	})
 }
 
