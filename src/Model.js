@@ -193,7 +193,7 @@ function ModelConstructor (config) {
 	 */
 	const _buildResponse = (result, params, options) => {
 		const items = result.Items;
-		if (_isPaginationBackwards(options)) items.reverse()
+		if (_isPaginatingBackwards(options)) items.reverse()
 		const response = {items: _refineItems(items, options)}
 		const paginationKeys = _buildPaginationKey(
 			result,
@@ -235,7 +235,7 @@ function ModelConstructor (config) {
 	 * @return {Boolean}        Next page query result.
 	 */
 	const _hasNextPage = (result, options) => 
-		!!result.LastEvaluatedKey || _isPaginationBackwards(options)
+		!!result.LastEvaluatedKey || _isPaginatingBackwards(options)
 	/**
 	 * Build the next key
 	 * @param  {Object} lastItem Last item
@@ -263,17 +263,18 @@ function ModelConstructor (config) {
 	 * @param  {Object} options Additional options.
 	 * @return {Boolean}        First page query result.
 	 */
-	const _isFirstPage = (result, params, options = {}) =>
-		!params.ExclusiveStartKey ||
-		(!!params.ExclusiveStartKey && 
-		_isPaginationBackwards(options) &&
-		!result.LastEvaluatedKey)
+	const _isFirstPage = (result, params, options = {}) => {
+    return !params.ExclusiveStartKey ||
+      (!!params.ExclusiveStartKey && 
+    	_isPaginatingBackwards(options) &&
+    	!result.LastEvaluatedKey);
+  }
 	/**
 	 * Checks if paginatio is configured backward.
 	 * @param  {Object} options Additional options.
 	 * @return {Boolean}        Pagination backwards query result.
 	 */
-	const _isPaginationBackwards = (options) => 
+	const _isPaginatingBackwards = (options) => 
 		options.page && options.page.charAt(0) === '-'
  	/**
  	 * Validates the model with the schema using Joi.
@@ -568,7 +569,7 @@ function ModelConstructor (config) {
 		_buildNextKey,
 		_buildPrevKey,
 		_isFirstPage,
-		_isPaginationBackwards,
+		_isPaginatingBackwards,
 		_validateSchema,
 		_buildKey,
 		_buildItemKey,

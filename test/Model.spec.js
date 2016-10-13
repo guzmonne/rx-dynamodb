@@ -265,6 +265,38 @@ describe('Model', () => {
 	})
 
 	describe('#_buildPaginationKey(result, params, items, options)', () => {
-		it('')
+		const params = {TableName}
+		const options = {}
+		
+		it('it should return an empty object if items.length is zero', () => {
+			const items = []
+			const result = {items}
+			const actual = JSON.stringify(Model._buildPaginationKey(result, params, items, options))
+			expect(actual).to.equal('{}')
+		})
+
+		const LastEvaluatedKey = {ID:2, Range:3}
+		const encodedKey = base64url.encode(JSON.stringify(LastEvaluatedKey))
+		const items = [{ID:1, Range: 2}, LastEvaluatedKey]
+		
+		it ('should return the nextPage object with the encoded key', () => {
+			const result = {items, LastEvaluatedKey}
+			const expected = JSON.stringify({nextPage: encodedKey})
+			const actual = JSON.stringify(Model._buildPaginationKey(result, params, items, options))
+			expect(actual).to.equal(expected)
+		})
+
+		const ExclusiveStartKey = {ID:1, Range:2}
+		const encodedExclusiveKey = base64url.encode(JSON.stringify(ExclusiveStartKey))
+		it('should return the prevPage object with the encoded key', () => {
+			const result = {items, LastEvaluatedKey}
+			const _params = Object.assign({}, params, {ExclusiveStartKey})
+			const expected = JSON.stringify({nextPage: encodedKey, prevPage: '-' + encodedExclusiveKey})
+			const actual = JSON.stringify(Model._buildPaginationKey(result, _params, items, options))
+			expect(actual).to.equal(expected)
+		})
 	})
 })
+
+-{"nextPage":"eyJJRCI6MiwiUmFuZ2UiOjN9","prevPage":"-eyJJRCI6MSwiUmFuZ2UiOjJ9"}
++{"nextPage":"eyJJRCI6MiwiUmFuZ2UiOjN9","prevPage":"-eyJJRCI6MSwiUmFuZ2UiOjN9"}
