@@ -209,27 +209,28 @@ describe('Model', () => {
 		})
 	})
 
+	const key = {ID:1, Range:3}
+	const encodedKey = base64url.encode(JSON.stringify(key))
+	const items =  [
+		{ID:1, Range: 3, Test: 'Example'},
+		{ID:2, Range: 3, Test: 'Example'},
+	]
+	const result = {
+		Items: items
+	}
+	const params = {
+		TableName,
+		KeyConditionExpression: '#hkey = :hvalue',
+		ExpressionAttributeNames: {'#hkey': 'Test'},
+		ExpressionAttributeValues: {':hvalue': 'Example'},
+		ScanIndexForward: false,
+	}
+	const options = {
+		include_fields: false,
+		fields: 'Test,Range',
+	}
+
 	describe('#_buildResponse(result, params, options)', () => {
-		const key = {ID:1, Range:3}
-		const encodedKey = base64url.encode(JSON.stringify(key))
-		const items =  [
-			{ID:1, Range: 3, Test: 'Example'},
-			{ID:2, Range: 3, Test: 'Example'},
-		]
-		const result = {
-			Items: items
-		}
-		const params = {
-			TableName,
-			KeyConditionExpression: '#hkey = :hvalue',
-			ExpressionAttributeNames: {'#hkey': 'Test'},
-			ExpressionAttributeValues: {':hvalue': 'Example'},
-			ScanIndexForward: false,
-		}
-		const options = {
-			include_fields: false,
-			fields: 'Test,Range',
-		}
 		it('should return all the items if params and options are default', () => {
 			const expected = JSON.stringify({items})
 			const actual = JSON.stringify(Model._buildResponse(result, params, {}))
@@ -297,6 +298,3 @@ describe('Model', () => {
 		})
 	})
 })
-
--{"nextPage":"eyJJRCI6MiwiUmFuZ2UiOjN9","prevPage":"-eyJJRCI6MSwiUmFuZ2UiOjJ9"}
-+{"nextPage":"eyJJRCI6MiwiUmFuZ2UiOjN9","prevPage":"-eyJJRCI6MSwiUmFuZ2UiOjN9"}
