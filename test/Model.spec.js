@@ -209,27 +209,28 @@ describe('Model', () => {
 		})
 	})
 
+	const key = {ID:1, Range:3}
+	const encodedKey = base64url.encode(JSON.stringify(key))
+	const items =  [
+		{ID:1, Range: 3, Test: 'Example'},
+		{ID:2, Range: 3, Test: 'Example'},
+	]
+	const result = {
+		Items: items
+	}
+	const params = {
+		TableName,
+		KeyConditionExpression: '#hkey = :hvalue',
+		ExpressionAttributeNames: {'#hkey': 'Test'},
+		ExpressionAttributeValues: {':hvalue': 'Example'},
+		ScanIndexForward: false,
+	}
+	const options = {
+		include_fields: false,
+		fields: 'Test,Range',
+	}
+
 	describe('#_buildResponse(result, params, options)', () => {
-		const key = {ID:1, Range:3}
-		const encodedKey = base64url.encode(JSON.stringify(key))
-		const items =  [
-			{ID:1, Range: 3, Test: 'Example'},
-			{ID:2, Range: 3, Test: 'Example'},
-		]
-		const result = {
-			Items: items
-		}
-		const params = {
-			TableName,
-			KeyConditionExpression: '#hkey = :hvalue',
-			ExpressionAttributeNames: {'#hkey': 'Test'},
-			ExpressionAttributeValues: {':hvalue': 'Example'},
-			ScanIndexForward: false,
-		}
-		const options = {
-			include_fields: false,
-			fields: 'Test,Range',
-		}
 		it('should return all the items if params and options are default', () => {
 			const expected = JSON.stringify({items})
 			const actual = JSON.stringify(Model._buildResponse(result, params, {}))
@@ -265,6 +266,9 @@ describe('Model', () => {
 	})
 
 	describe('#_buildPaginationKey(result, params, items, options)', () => {
-		it('')
+		it('should return an empty object if there are zero items', () => {
+			const actual = JSON.stringify(Model._buildPaginationKey({items: []}, params, [], options))
+			expect(actual).to.equal('{}')
+		})
 	})
 })
