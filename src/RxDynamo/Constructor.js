@@ -30,20 +30,14 @@ function RxDynamoObsConstructor (options={}) {
 	 * @param  {String} method  DynamoDB API method name
 	 * @return {Function}       Rx observable function wrapper
 	 */
-	const dynamoMethodToObservable = (method) => (params) => {
+	const dynamoMethodToObservable = (method) => (params, scheduler) => {
 		return Rx.Observable.create(observer => {
-			try {
-				db[method](params, (err, data) => {
-					if (err) {
-						observer.onError(err)
-						return
-					}
-					observer.onNext(data)
-					observer.onCompleted()
-				})
-			} catch (error) {
-				observer.onError(error)
-			}
+			db[method](params, (err, data) => {
+				if (err)
+					observer.onError(err)
+				observer.onNext(data)
+				observer.onCompleted()
+			})
 		})
 	}
 	//////////////////

@@ -24,6 +24,7 @@
   "devDependencies": {
     "aws-sdk": "^2.5.4",
     "chai": "^3.5.0",
+    "chai-rx": "0.0.2",
     "mocha": "^3.1.2"
   },
   "dependencies": {

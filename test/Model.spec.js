@@ -1,19 +1,25 @@
 const expect = require('chai').expect
 const Joi = require('joi')
 const base64url = require('base64-url')
-const RxDynamo = require('./stubs/RxDynamo.stub.js').RxDynamo
-const TableName = 'dynamdb-table-example'
-const Model = require('../src/Model.js')({
-	TableName,
-	Schema: Joi.object().keys({
-		ID: Joi.string().required(),
-		Range: Joi.string().required(),
-		Test: Joi.string().required(),
-	}),
-	RangeKey: 'Range',
-})
+const dynamoStub = require('./stubs/RxDynamo.stub.js').dynamoStub
 
 describe('Model', () => {
+	let TableName, Model
+
+	before(() => {
+		TableName = 'dynamdb-table-example'
+		Model = require('../src/Model.js')({
+			TableName,
+			Schema: Joi.object().keys({
+				ID: Joi.string().required(),
+				Range: Joi.string().required(),
+				Test: Joi.string().required(),
+			}),
+			RangeKey: 'Range',
+			Dynamo: dynamoStub,
+		})
+	})
+
 	describe('#_buildOptions(options)', () => {
 		it('should return an empty object if options is invalid', () => {
 			expect(JSON.stringify(Model._buildOptions({}))).to.equal('{}')
@@ -295,6 +301,63 @@ describe('Model', () => {
 			const expected = JSON.stringify({nextPage: encodedKey, prevPage: '-' + encodedExclusiveKey})
 			const actual = JSON.stringify(Model._buildPaginationKey(result, _params, items, options))
 			expect(actual).to.equal(expected)
+		})
+	})
+
+	describe('#save(item)', () => {
+		it('should return a correct DynamoDB params object based on the item to be saved', () => {
+			const item = {ID:1, Range:2, Test:'Example'}
+			Model.save(item)
+			.subscribe(result => {
+				expect(result).to.include.keys(
+					'TableName', 'Item', 'ReturnValues'
+				)
+				expect(result.Item).to.include.keys('CreatedAt')
+			})	
+		})
+	})
+
+	describe('#saveAll(items)', () => {
+		it('should build a correct DynamoDB params object', () => {
+			const items = [
+				{ID:1, Range:2, Test: 'Example'}, 
+				{ID:2, Range:3, Test: 'Example'}
+			]
+			Model.saveAll(items)
+			.subscribe(result => {
+				expect(result).to.include.keys('RequestItems')
+				expect(Object.keys(result).length).to.equal(1)
+				const table = result.RequestItems[TableName]
+				expect(table.length).to.equal(2)
+				table.map(row => {
+					expect(row).to.include.keys('PutRequest')
+					const request = row.PutRequest
+					expect(request).to.include.keys('Item')
+					expect(request.Item.CreatedAt).to.not.be.undefined
+				})
+			})
+		})
+	})
+
+	describe('#destroyAll(keys)', () => {
+		it('should build a correct DynamoDB params object', () => {
+			const keys = [[1, 2], [2, 2]]
+			const schema = {
+				RequestItems: Joi.object().keys({
+					[`${TableName}`]: Joi.array().items(Joi.object().keys({
+						DeleteRequest: Joi.object().keys({
+							Key: Joi.object().keys({
+								ID: Joi.number().required(),
+								Range: Joi.number().required(),
+							})
+						}).required()
+					})).required()
+				}).required()
+			}
+			Model.destroyAll(keys)
+			.subscribe(result => {
+				expect(!!Joi.validate(result, schema).error).to.be.false
+			})
 		})
 	})
 })

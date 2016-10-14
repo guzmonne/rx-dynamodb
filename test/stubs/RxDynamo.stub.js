@@ -12,13 +12,14 @@ const dynamoMethods = [
 	'update',
 ]
 
-const dynamo = dynamoMethods
+const dynamoStub = dynamoMethods
 	.map(method => ({
 		[`${method}`]: (params, cb) => cb(null, params) 
 	}))
 	.reduce((acc, pair) => Object.assign({}, acc, pair), {})
 
 exports = module.exports = {
-	RxDynamo: RxDynamoConstructor({dynamo}),
+	dynamoStub,
+	RxDynamo: RxDynamoConstructor({dynamo: dynamoStub}),
 	dynamoMethods,
 }

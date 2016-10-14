@@ -11,7 +11,7 @@ describe('RxDynamo', () => {
 				.subscribe(
 					actual => expect(actual).to.equal(expected),
 					error => console.log(error),
-					() => done()
+					done
 				)
 			})
 		})

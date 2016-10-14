@@ -1,7 +1,7 @@
 'use strict';
 
 const debug = require('./debug.js')
-const RxDynamo = require('./RxDynamo/')
+const RxDynamoConstructor = require('./RxDynamo/Constructor.js')
 const Joi = require('joi')
 const moment = require('moment')
 const base64url = require('base64-url')
@@ -24,6 +24,7 @@ function ModelConstructor (config) {
 	///////////////
 	// CONSTANTS //
 	///////////////
+	const RxDynamo = RxDynamoConstructor({dynamo: config.Dynamo})
 	const TableName = config.TableName
 	const Schema = config.Schema
 	const HashKey = config.HashKey || 'ID'
@@ -342,7 +343,7 @@ function ModelConstructor (config) {
 			Item: item,
 			ReturnValues: 'ALL_OLD',
 		}
-		params.Item.createdAt = moment().unix()
+		params.Item.CreatedAt = moment().unix()
 		return RxDynamo.put(params)
 	}
 	/**
@@ -354,7 +355,9 @@ function ModelConstructor (config) {
 		debug('= Model.saveAll', items)
 		const params = {RequestItems: {}}
 		params.RequestItems[TableName] = items.map(item => ({
-			PutRequest: {Item: omitEmpty(item)}
+			PutRequest: {Item: omitEmpty(Object.assign({}, item, {
+				CreatedAt: moment().unix()
+			}))}
 		}))
 		return RxDynamo.batchWrite(params)
 	}
