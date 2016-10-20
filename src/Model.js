@@ -1,7 +1,7 @@
 'use strict';
 
 const debug = require('./debug.js')
-const RxDynamoConstructor = require('./RxDynamo/Constructor.js')
+const RxDynamo = require('./RxDynamo/')
 const Joi = require('joi')
 const moment = require('moment')
 const base64url = require('base64-url')
@@ -24,7 +24,7 @@ function ModelConstructor (config) {
 	///////////////
 	// CONSTANTS //
 	///////////////
-	const RxDynamo = RxDynamoConstructor({dynamo: config.Dynamo})
+	const db = config.DB || RxDynamo
 	const TableName = config.TableName
 	const Schema = config.Schema
 	const HashKey = config.HashKey || 'ID'
@@ -344,7 +344,7 @@ function ModelConstructor (config) {
 			ReturnValues: 'ALL_OLD',
 		}
 		params.Item.CreatedAt = moment().unix()
-		return RxDynamo.put(params)
+		return db.put(params)
 	}
 	/**
 	 * Save all the items to the table as a batch job.
@@ -359,7 +359,7 @@ function ModelConstructor (config) {
 				CreatedAt: moment().unix()
 			}))}
 		}))
-		return RxDynamo.batchWrite(params)
+		return db.batchWrite(params)
 	}
 	/**
 	 * Delete all the items associated to the keys list
@@ -372,7 +372,7 @@ function ModelConstructor (config) {
 		params.RequestItems[TableName] = keys.map(key => ({
 			DeleteRequest: {Key: _buildKey(key[0], key[1])}
 		}))
-		return RxDynamo.batchWrite(params)
+		return db.batchWrite(params)
 	}
 	/**
 	 * Gets an item from the table
@@ -388,7 +388,7 @@ function ModelConstructor (config) {
 		}
 		const optionalParams = _buildOptions(options)
 		const params = Object.assign({}, defaultParams, optionalParams)
-		return RxDynamo.get(params)
+		return db.get(params)
 			.map(result => {
 				return !!result.Item ? _refineItem(result.Item, options) : {}
 			})
@@ -408,7 +408,7 @@ function ModelConstructor (config) {
 			AttributeUpdates: _buildAttributesUpdates(attrs),
 			ReturnValues: 'ALL_NEW',
 		}
-		return RxDynamo.update(params)
+		return db.update(params)
 			.map(result => result.Attributes)
 	}
 	/**
@@ -423,7 +423,7 @@ function ModelConstructor (config) {
 			TableName,
 			Key: _buildKey(hash, range)
 		}
-		return RxDynamo.delete(params)
+		return db.delete(params)
 			.map(() => true)
 	}
 	/**
@@ -444,7 +444,7 @@ function ModelConstructor (config) {
 		}
 		const optionalParams = _buildOptions(options, params)
 		const params = deepAssign(defaultParams, optionalParams)
-		return RxDynamo.query(params)
+		return db.query(params)
 			.map(result => _buildResponse(result, defaultParams, options))
 	}
 	/**
@@ -462,7 +462,7 @@ function ModelConstructor (config) {
 			ExpressionAttributeValues: {':hvalue': value},
 			Select: 'COUNT',
 		}
-		return RxDynamo.query(params)
+		return db.query(params)
 			.map(result => result.Count)
 	}
 	/**
@@ -484,7 +484,7 @@ function ModelConstructor (config) {
 			Action: 'ADD',
 			Value: count,
 		}
-		return RxDynamo.update(params)
+		return db.update(params)
 	}
 	/**
 	 * Increment multiple attributes.
@@ -508,7 +508,7 @@ function ModelConstructor (config) {
 				}
     	}
 		}
-		return RxDynamo.update(params)
+		return db.update(params)
 	}
 	/**
 	 * Previous page constructor.

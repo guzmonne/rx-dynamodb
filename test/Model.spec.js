@@ -1,12 +1,33 @@
-const expect = require('chai').expect
+const chai = require('chai')
+const sinon = require('sinon')
+const sinonChai = require('sinon-chai')
+const Rx = require('rx')
 const Joi = require('joi')
 const base64url = require('base64-url')
-const dynamoStub = require('./stubs/RxDynamo.stub.js').dynamoStub
+const RxDynamo = require('../src/RxDynamo/')
+const expect = chai.expect
+chai.use(sinonChai)
+
+const dynamoMethods = [
+	'batchGet',
+	'batchWrite',
+	'createSet',
+	'delete',
+	'get',
+	'put',
+	'query',
+	'scan',
+	'update',
+]
+const just = (arg) => Rx.Observable.just(arg)
 
 describe('Model', () => {
-	let TableName, Model
+	let TableName, Model, stubs
 
 	before(() => {
+		stubs = dynamoMethods.map(method => 
+			({[`${method}`]: sinon.stub(RxDynamo, method, just)})
+		).reduce((acc, x) => Object.assign({}, acc, x), {})
 		TableName = 'dynamdb-table-example'
 		Model = require('../src/Model.js')({
 			TableName,
@@ -15,9 +36,12 @@ describe('Model', () => {
 				Range: Joi.string().required(),
 				Test: Joi.string().required(),
 			}),
-			RangeKey: 'Range',
-			Dynamo: dynamoStub,
+			RangeKey: 'Range'
 		})
+	})
+
+	after(() => {
+		dynamoMethods.map(method => RxDynamo[method].restore())
 	})
 
 	describe('#_buildOptions(options)', () => {

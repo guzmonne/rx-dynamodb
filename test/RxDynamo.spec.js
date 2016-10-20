@@ -1,18 +1,27 @@
 const expect = require('chai').expect
-const RxDynamoStub = require('./stubs/RxDynamo.stub.js')
-const RxDynamo = RxDynamoStub.RxDynamo
+const RxDynamo = require('../src/RxDynamo/')
+
+const dynamoMethods = [
+	'batchGet',
+	'batchWrite',
+	'createSet',
+	'delete',
+	'get',
+	'put',
+	'query',
+	'scan',
+	'update',
+]
 
 describe('RxDynamo', () => {
-	RxDynamoStub.dynamoMethods.map(method => {
+	dynamoMethods.map(method => {
 		describe(`#${method}(params)`, () => {
-			it('should be defined', done => {
-				const expected = 'pass'
-				RxDynamo[method]('pass')
-				.subscribe(
-					actual => expect(actual).to.equal(expected),
-					error => console.log(error),
-					done
-				)
+			it('should be defined', () => {
+				expect(!!RxDynamo[method]).to.be.true
+			})
+
+			it('should return an observable', () => {
+				expect(RxDynamo[method]({pass: true}).subscribe).to.be.instanceof(Function)
 			})
 		})
 	})
