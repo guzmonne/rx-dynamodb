@@ -541,7 +541,7 @@ function ModelConstructor (config) {
 	//////////////////
 	// RETURN VALUE //
 	//////////////////
-	return Object.freeze({
+	return {
 		// PUBLIC
 		save,
 		saveAll,
@@ -577,7 +577,7 @@ function ModelConstructor (config) {
 		_buildKey,
 		_buildItemKey,
 		_buildAttributesUpdates,
-	})
+	}
 }
 
 exports = module.exports = ModelConstructor
