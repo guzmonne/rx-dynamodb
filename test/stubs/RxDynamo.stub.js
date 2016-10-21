@@ -1,3 +1,5 @@
+'use strict'
+
 const RxDynamoConstructor = require('../../src/RxDynamo/Constructor.js')
 
 const dynamoMethods = [

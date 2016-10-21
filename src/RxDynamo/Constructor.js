@@ -7,7 +7,8 @@ const AWS = require('aws-sdk')
  * Constructor that returns an object with function wrappers
  * for every method of the DynamoDB API.
  */
-function RxDynamoObsConstructor (options={}) {
+function RxDynamoObsConstructor (options) {
+	options || (options = {})
 	const db = options.dynamo || new AWS.DynamoDB.DocumentClient({
 		region: process.env.SERVERLESS_REGION || options.region || 'us-east-1'
 	})

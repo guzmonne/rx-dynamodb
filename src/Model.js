@@ -264,7 +264,8 @@ function ModelConstructor (config) {
 	 * @param  {Object} options Additional options.
 	 * @return {Boolean}        First page query result.
 	 */
-	const _isFirstPage = (result, params, options = {}) => {
+	const _isFirstPage = (result, params, options) => {
+		options || (options = {})
     return !params.ExclusiveStartKey ||
       (!!params.ExclusiveStartKey && 
     	_isPaginatingBackwards(options) &&
@@ -381,7 +382,8 @@ function ModelConstructor (config) {
 	 * @param  {Object} options Options to define how to get the item.
 	 * @return {Observable}     DynamoDB get observable.
 	 */
-	const get = (hash, range, options={}) => {
+	const get = (hash, range, options) => {
+		options || (options = {})
 		const defaultParams = {
 			TableName,
 			Key: _buildKey(hash, range),
@@ -433,7 +435,8 @@ function ModelConstructor (config) {
 	 * @param  {Object} options Options object.
 	 * @return {Observable}     DynamoDB query observable.
 	 */
-	const allBy = (key, value, options = {}) => {
+	const allBy = (key, value, options) => {
+		options || (options = {})
 		debug('= Model.allBy', key, value)
 		const defaultParams = {
 			TableName,
@@ -546,7 +549,7 @@ function ModelConstructor (config) {
 		save,
 		saveAll,
 		destroyAll,
-		get,
+		get: get,
 		update,
 		destroy,
 		allBy,
